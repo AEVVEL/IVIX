@@ -57,7 +57,7 @@ async def start_api_parse(pages_to_parse: int):
             symbol=coin["symbol"],
             price=f"${coin['quotes'][0]['price']:,.2f}",
             day_price_change=f"{coin['quotes'][0]['percentChange24h']:,.2f}%",
-            market_cap=f"{coin['quotes'][0]['marketCap']:,.2f}",
+            market_cap=f"${coin['quotes'][0]['marketCap']:,.2f}",
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             parse_type="api"
         ))
