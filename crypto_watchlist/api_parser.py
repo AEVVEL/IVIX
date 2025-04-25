@@ -8,6 +8,40 @@ from schemas import Coin
 
 logger = logging.getLogger(__name__)
 
+
+def format_price_custom(price):
+    if isinstance(price, str):
+        price = price.replace('$', '').replace(',', '')
+
+    price_float = float(price)
+    price_str = f"{price_float:.30f}"
+
+    if price_float < 1:
+        parts = price_str.split('.')
+        if len(parts) > 1:
+            decimal_part = parts[1]
+
+            last_zero_pos = -1
+
+            for i, digit in enumerate(decimal_part):
+                if digit == '0':
+                    last_zero_pos = i
+                else:
+                    break
+
+            if last_zero_pos >= 0:
+                digits_to_show = last_zero_pos + 1 + 4
+                formatted = f"{price_float:.{digits_to_show}f}"
+                return f"${formatted}"
+            else:
+                return f"${price_float:.4f}"
+
+    elif price_float < 1000:
+        return f"${price_float:.2f}"
+    else:
+        return f"${price_float:,.2f}"
+
+
 async def request_coins_info(start: int, limit: int):
     try:
         api_url = (
@@ -55,9 +89,9 @@ async def start_api_parse(pages_to_parse: int):
             rank=str(coin["cmcRank"]),
             name=coin["name"],
             symbol=coin["symbol"],
-            price=f"${coin['quotes'][0]['price']:,.2f}",
+            price=format_price_custom(coin['quotes'][0]['price']),
             day_price_change=f"{coin['quotes'][0]['percentChange24h']:,.2f}%",
-            market_cap=f"${coin['quotes'][0]['marketCap']:,.2f}",
+            market_cap=f"${coin['quotes'][0]['marketCap']:,.0f}",
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             parse_type="api"
         ))
